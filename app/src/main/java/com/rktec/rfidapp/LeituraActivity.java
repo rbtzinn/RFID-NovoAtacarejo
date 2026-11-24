@@ -368,7 +368,7 @@ public class LeituraActivity extends AppCompatActivity implements IAsynchronousM
 
             case ItemLeituraSessao.STATUS_SETOR_ERRADO:
                 String setorBase = (sessao.item != null && sessao.item.codlocalizacao != null)
-                        ? sessao.item.codlocalizacao
+                        ? MapeadorSetor.nomeSetor(sessao.item.codlocalizacao)
                         : "-";
                 msg = "Atenção: item da loja correta, mas em outro setor (setor na base: " + setorBase + ").";
                 corFundo = Color.parseColor("#FFF8E1"); // amarelo claro

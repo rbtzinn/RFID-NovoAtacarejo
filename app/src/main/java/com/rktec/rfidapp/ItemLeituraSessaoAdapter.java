@@ -65,9 +65,9 @@ public class ItemLeituraSessaoAdapter extends RecyclerView.Adapter<ItemLeituraSe
             if (sessao.item.loja != null && !sessao.item.loja.trim().isEmpty()) {
                 loja = sessao.item.loja.trim();
             }
-            // usa a coluna CODLOCALIZACAO como "setor"
+            // CODLOCALIZACAO guarda o código; mostra o nome do setor
             if (sessao.item.codlocalizacao != null && !sessao.item.codlocalizacao.trim().isEmpty()) {
-                setor = sessao.item.codlocalizacao.trim();
+                setor = MapeadorSetor.nomeSetor(sessao.item.codlocalizacao);
             }
         }
 

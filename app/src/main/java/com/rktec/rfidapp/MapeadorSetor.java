@@ -5,7 +5,11 @@ import java.util.Map;
 
 public class MapeadorSetor {
 
-    /** Substitui item.codlocalizacao pelo nome mapeado. Mantém código original se não achar. */
+    /**
+     * Normaliza item.codlocalizacao para o mesmo formato de código usado na lista de setores
+     * (ex.: "001001" -> "1001"), para que a comparação com o setor selecionado funcione.
+     * O campo continua guardando o CÓDIGO; o nome é obtido com {@link #nomeSetor(String)}.
+     */
     public static void aplicar(List<ItemPlanilha> itens, Map<String, String> mapa) {
         if (itens == null || itens.isEmpty() || mapa == null || mapa.isEmpty()) return;
 
@@ -15,20 +19,37 @@ public class MapeadorSetor {
             if (original.isEmpty()) continue;
 
             String chave = normalizeCodigo(original);
-            String nome = mapa.get(chave);
-            if (nome == null) {
-                // tentativa com zeros à esquerda (ex.: width 3)
+            String codigo = null;
+            if (mapa.containsKey(chave)) {
+                codigo = chave;
+            } else {
+                // tentativa com zeros à esquerda (ex.: width 3 / 2)
                 String alt3 = addLeadingZeros(chave, 3);
-                nome = mapa.get(alt3);
-                if (nome == null) {
-                    String alt2 = addLeadingZeros(chave, 2);
-                    nome = mapa.get(alt2);
-                }
+                String alt2 = addLeadingZeros(chave, 2);
+                if (mapa.containsKey(alt3)) codigo = alt3;
+                else if (mapa.containsKey(alt2)) codigo = alt2;
             }
-            if (nome != null && !nome.isEmpty()) {
-                item.codlocalizacao = nome; // troca código pelo rótulo amigável
+            if (codigo != null) {
+                item.codlocalizacao = codigo; // mantém o CÓDIGO, só normalizado
             }
         }
+    }
+
+    /** Retorna o nome do setor para o código informado, ou o próprio código se não achar. */
+    public static String nomeSetor(String codlocalizacao) {
+        String cod = safe(codlocalizacao);
+        if (cod.isEmpty()) return cod;
+        List<SetorLocalizacao> setores = DadosGlobais.getInstance().getListaSetores();
+        if (setores != null) {
+            String chave = normalizeCodigo(cod);
+            for (SetorLocalizacao s : setores) {
+                if (s != null && chave.equals(normalizeCodigo(s.codlocalizacao))
+                        && s.setor != null && !s.setor.isEmpty()) {
+                    return s.setor;
+                }
+            }
+        }
+        return cod;
     }
 
     private static String addLeadingZeros(String v, int width) {
